@@ -413,7 +413,7 @@ def dreams_readdata(pon_bam, ref, pon_data, pon_info, options=None):
     TEMP_DIR=temp/scratch/${{SLURM_JOBID}}
     mkdir -p ${{TEMP_DIR}}
 
-    source ~/miniconda3/bin/activate dreams
+    source ~/miniconda3/bin/activate dreams_M
     Rscript dreams.R \
         --pondata=${{TEMP_DIR}}/pon_data.csv \
         --poninfo=${{TEMP_DIR}}/pon_info.csv \
