@@ -1,6 +1,6 @@
 # UMIseq_variant_calling
 ## Patient plasma sample processing
-**About workflow**
+**About <workflow>**
 
 All files under the folder <workflow> are used to process patient plasma sample files. It includes the UMI processing step and variant calling by VarScan2, Mutect2, shearwater and DREAMS-vc.
 
@@ -17,6 +17,7 @@ Run the gwf workflow with the templates.py and workflow.py under workflow to pro
 In addition to the UMI processing steps above, variant calling steps are also included in the code. For filtering non-cancer mutations and SNPs, PILEUP and MPILEUP are also generated for buffycoat(or saying PBMC) sample.
 
 ***STEP2: Run shearwater***
+
 Before running the gwf workflow step of shearwtaer variant calling, please check if `pon_sw.RDS` exists after running all steps shown under <workflow_PON>. Then run variant calling by shearwater following the gwf workflow. 
 
 ***STEP3: Run Mutect2***

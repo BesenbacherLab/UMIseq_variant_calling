@@ -1,6 +1,6 @@
 # UMIseq_variant_calling
 ## PON processing
-**About workflow_PON**
+**About <workflow_PON>**
 
 All files under the folder <workflow_PON> are used to process PON files for variant calling by mutect2, shearwater and DREAMS-vc.
 
