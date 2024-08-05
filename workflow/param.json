@@ -1,0 +1,50 @@
+{
+    "meta":
+    {
+      "ctdna_directory": "/home/yixinlin/ctdna_var_calling/Workspaces/yixinlin/fq_data2",
+      "germline_directory": "/home/yixinlin/ctdna_var_calling/Workspaces/yixinlin/germline_data", 
+      "sample_list": "/home/yixinlin/ctdna_var_calling/Workspaces/yixinlin/all_germline_files.lst"
+    },
+    "conda":
+    {
+      "primary": "umiseq",
+      "shearwater&R": "shearwater",
+      "dreams": "dreams"
+    },
+    "gwf":
+    {
+      "templates": "templates.py",
+      "workflow": "workflow.py"
+    },
+    "scripts":
+    {
+      "prepare_fq_list": "prepare_fq_list.py",
+      "equalize_tags": "equalize_tags.py",
+      "run_shearwater": "shearwater.R",
+      "mutect2_allbedpos": "bed_vcf_mutect2.R",
+      "dreams_callvariants": "dreams3.R"
+    },
+    "references":
+    {
+      "reference": "GCA_000001405.15_GRCh38_no_alt_analysis_set.fna",
+      "panel_bed": "NEW_METHOD_hg38_08feb2016_capture_targets.bed",
+      "pon_sw": "pon_sw.RDS",
+      "pon_mutect": "pon.vcf.gz",
+      "positions_mutect": "mutect2_allbedpos.vcf",
+      "positions_dreams #modified from positions_mutect by keeping the header": "dreams_mutations.df", 
+      "pon_info_dreams": "all_pon_soft.info.csv",
+      "model_dreams" : "all_pon_training_soft.vd.hdf5"
+    },
+    "reads":
+    {
+      "input_read_1_suffix_pattern": ".*(_|\\.)R1(_|\\.).*(fastq|fq)\\.gz$",
+      "input_read_2_suffix_pattern": ".*(_|\\.)R2(_|\\.).*(fastq|fq)\\.gz$",
+      "input_read_umi_suffix_pattern": ".*(_|\\.)(R3|UMI)(_|\\.).*(fastq|fq)\\.gz$"
+    },
+    "parameters":
+    {
+      "grouping_method": "directional",
+      "min_consensus_reads":3
+    }
+}
+  

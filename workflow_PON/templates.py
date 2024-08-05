@@ -424,16 +424,3 @@ def dreams_readdata(pon_bam, ref, pon_data, pon_info, options=None):
     mv ${{TEMP_DIR}}/pon_info.csv {pon_info}
     """
     return AnonymousTarget(inputs = inputs, outputs = outputs, spec = spec, options = options)
-
-def get_depth(bam, depth, options=None):
-    inputs = [bam]
-    outputs = [depth]
-    if not options:
-        options = dict(cores='1', memory='12g', walltime='1:00:00', account = 'ctdna_var_calling')
-    spec = f"""
-    set -e
-    TEMP_DIR=temp/scratch/${{SLURM_JOBID}}
-    mkdir -p ${{TEMP_DIR}}
-    samtools depth {bam} | awk '{{c++;s+=$3}}END{{print s/c}}' > {depth}
-    """
-    return AnonymousTarget(inputs = inputs, outputs = outputs, spec = spec, options = options)
