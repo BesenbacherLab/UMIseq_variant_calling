@@ -1,6 +1,7 @@
 library(dreams)
-data_files = list.files("pon_bams_read3", pattern = "_soft.data.csv", recursive=T, full.names = T)
-info_files = list.files("pon_bams_read3", pattern = "_soft.info.csv", recursive=T, full.names = T)
+#data_files = list.files("pon_bams_read3", pattern = "_soft.data.csv", recursive=T, full.names = T)
+#info_files = list.files("pon_bams_read3", pattern = "_soft.info.csv", recursive=T, full.names = T)
+#change to your directory with all results generated from running dreams.R on PON
 
 read_data = function(data){
   data <-read.table(data, header=TRUE)
@@ -20,8 +21,9 @@ combine_training_data = function(data_files, info_files) {
 }
 
 output_data = combine_training_data(data_files, info_files)
-write.table(output_data$data, "all_pon_soft.data.csv", row.names=FALSE, sep=" ", quote = FALSE)
-write.table(output_data$info, "all_pon_soft.info.csv", row.names=FALSE, sep=" ", quote = FALSE)
+#write.table(output_data$data, "all_pon_soft.data.csv", row.names=FALSE, sep=" ", quote = FALSE)
+#write.table(output_data$info, "all_pon_soft.info.csv", row.names=FALSE, sep=" ", quote = FALSE)
+#change to your directory to save the results
 
 
 model = train_dreams_model(
@@ -31,8 +33,7 @@ model = train_dreams_model(
     lr=0.01,
     batch_size=64000, 
     epochs=100, 
-    
-    model_file_path='all_pon_training_soft.vd.hdf5',
-    log_file_path='all_pon_training_soft.vd.log',
+    model_file_path='all_pon_training_soft.vd.hdf5', #change to your directory
+    log_file_path='all_pon_training_soft.vd.log', #change to your directory
     validation_split = 0.2
 )

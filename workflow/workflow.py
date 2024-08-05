@@ -198,12 +198,11 @@ for line in open(sample_file,'r'):
     ### Variant calling by DREAMS-vc
     gwf.target_from_template(name=f"dreams_variantcalls_{sample}",
         template = dreams_variantcalls(
-            mutations_df = 'positions_dreams', 
+            mutations_df = positions_dreams, 
             bam = os.path.join(fq_dir, sample, f"{sample}_soft.filtered.fixmate.bam"), 
             ref = ref, 
             model = model_dreams, 
             all_pon_info = pon_info_dreams, 
-            log_file = os.path.join(fq_dir, sample, f"{sample}_dreams.log"),
             calls = os.path.join(fq_dir, sample, f"{sample}_dreams_variants.df")))
 
 

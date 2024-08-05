@@ -8,8 +8,8 @@ Usage:
   
 Options:
 -h --help                 Show this screen.
---vcfall=VCFALL           Vcf OUTPUT of all positions called for this sample.
---tempvcfall=TEMPVCFALL   VCF all output after filtering but before intersection.
+--vcfall=VCFALL           VCF OUTPUT of all mutations along the panel called for this sample.
+--tempvcfall=TEMPVCFALL   VCF OUTPUT only SNVs on autosomes and chrX along the panel for this sample.
 --model=MODEL             The shearwater model to use {AND,OR} [default: AND].
 --pon=PON                 A PON RDS file.
 --sample=SP               Sample for variant calling.
@@ -43,12 +43,6 @@ vcf_all <-opt$vcfall
 tempvcf_all <-opt$tempvcfall
 sample <- opt$sample
 targets <-read.table(opt$region)
-
-#library("deepSNV")
-#library("abind")
-#library("tidyverse")
-
-#targets <-read.table("NEW_METHOD_hg38_08feb2016_capture_targets.bed")
 
 
 new_loadAllData <-function(files, regions, ..., mc.cores = 1){
@@ -151,69 +145,6 @@ piles_to_counts <- function(file, regions, extended = F) {
   return(res3d)
 
 }
-
-#new_bf2Vcf <-function (BF, counts, coordinates, samples = 1:nrow(counts), err = NULL, 
-#    mu = NULL, cutoff = 0.05, prior = 0.5){
-#    #coordinates <- regions2Coordinates(regions) ##18094*2(chr&pos)
-#
-#    prior = array(rep(prior, each = length(BF)/length(prior)), 
-#        dim = dim(BF)) ##47*18094*7, all 0.5
-#    odds = prior/(1 - prior) ##47*18094*7, all 1
-#    posterior = BF/(BF + odds) ##47*18094*7, A, T, C, G, D, I, N
-#    w = which(posterior < cutoff, arr.ind = TRUE) ##10447*3(dim1, dim2, dim3)--posterior[dim1, dim2, dim3]<0.05
-#    w = w[order(w[, 2], w[, 3], w[, 1]), , drop = FALSE] #first sort by dim2(pos), then sort by dim3(nulceotides), finally sort by dim1(sample)
-#    if (dim(w)[1] == 0) {
-#        w = matrix(1, ncol = 3)
-#        isNull = TRUE
-#    }
-#    else {
-#        isNull = FALSE
-#    }
-#    totCounts = counts[, , 1:7] + counts[, , 8:14] ##change from 5 to 7, from 47*18094*14 to 47*18094*7
-#    if (is.null(err)) {
-#        err = colSums(totCounts) ##18094*7, sum for the 47 samples
-#        ##err[1,] A      T      C      G      D      I      N 
-#                ##17     46     11 361410      0      0      4 
-#        err = err/(rowSums(err) + .Machine$double.eps) #rowSums(err)--length=18094, [1]=G: 361488
-#    }
-#    if (is.null(mu)) {
-#        mu = (totCounts)/rep(rowSums(counts, dims = 2) + .Machine$double.eps, 7) ##rowSums(counts, dims = 2): 47*18094
-#        ##A    T    C    G    D    I    N    a    t    c    g    d    i    n 
-#        ##0    0    0 2177    0    0    3    0    0    0 1437    0    0    1 --rowSums=3618
-#    }        
-#    #ref = factor(apply(err, 1, which.max), levels = 1:7, labels = c("A", "T", "C", "G", "D", "I", "N"))
-#
-#    u = !duplicated(w[, -1, drop = FALSE])
-#    wu = w[u, , drop = FALSE]
-#    pp = mapply(function(i, j) {posterior[, i, j]}, wu[, 2], wu[, 3])
-#    geno = SimpleList(GT = t(pp < cutoff) + 0, GQ = t(round(-10 * log10(pp))), 
-#    BF = signif(t(mapply(function(i, j) {BF[, i, j]}, wu[, 2], wu[, 3])), 3), 
-#    VF = signif(t(mapply(function(i, j) {mu[, i, j]}, wu[, 2], wu[, 3])), 3), 
-#    FW = t(mapply(function(i, j) {counts[, i, j]}, wu[, 2], wu[, 3])), 
-#    BW = t(mapply(function(i, j) {counts[, i, j + 7]}, wu[, 2], wu[, 3])), 
-#    FD = t(mapply(function(i, j) {rowSums(counts[, i, 1:7])}, wu[, 2], wu[, 3])), 
-#    BD = t(mapply(function(i, j) {rowSums(counts[, i, 8:14])}, wu[, 2], wu[, 3])))
-#    v = VCF(rowRanges = GRanges(coordinates$chr[wu[, 2]], 
-#                                IRanges(coordinates$pos[wu[, 2]] - (wu[, 3] == 7), 
-#                                width = 1 + (wu[, 3] == 7)), ), 
-#            fixed = DataFrame(#REF = DNAStringSet(paste(ifelse(wu[, 3] == 7, as.character(ref[wu[, 2] - 1]), ""), ref[wu[, 2]], sep = "")), 
-#                              REF = coordinates$ref,
-#                              #ALT = do.call(DNAStringSetList, as.list(paste(ifelse(wu[, 3] == 7, as.character(ref[wu[, 2] - 1]), ""), c("A", "T", "C", "G", "D", "I", "N")[wu[, 3]], sep = ""))), QUAL = 1, FILTER = "PASS"), 
-#                              ALT = c('A', 'T', 'C', 'G', 'D', 'I', 'N')[ w[,3] ]),
-#                              info = DataFrame(ER = select(wu[, -1], err), 
-#                              PI = select(wu, prior), 
-#                              AF = rowMeans(geno$GT), LEN = 1), 
-#                              geno = geno, 
-#                              exptData = list(header = scanVcfHeader(system.file("extdata", "shearwater2.vcf", package = "deepSNV"))), 
-#            colData = DataFrame(samples = 1:length(samples), row.names = samples), collapsed = TRUE)
-#        colnames(v) = samples
-#    }
-#    metadata(v)$header@samples <- as.character(samples)
-#    meta(metadata(v)$header)[[1]]["date", 1] <- paste(Sys.time())
-#    if (isNull) 
-#        v <- v[NULL]
-#    return(v)
-#}
 
 
 # estimateRho_ ------------------------------------------------------------
@@ -377,10 +308,10 @@ bbb_to_df <- function(BF, counts, prior=0.5, coordinates, sample, cutoff = 0.05,
   #Output:
   #Returns NULL when no call is found below cutoff
 
-  prior_a = array(rep(prior, each = length(BF)/length(prior)), dim=dim(BF)) ##47*18094*7, all 0.5
-  odds = prior_a/(1-prior_a) ##47*18094*7, all 1
-  posterior = BF / (BF + odds) ##47*18094*7, A, T, C, G, D, I, N
-  w = which(posterior < cutoff, arr.ind=TRUE) ##10447*3(dim1, dim2, dim3)--posterior[dim1, dim2, dim3]<0.05
+  prior_a = array(rep(prior, each = length(BF)/length(prior)), dim=dim(BF)) 
+  odds = prior_a/(1-prior_a) 
+  posterior = BF / (BF + odds) 
+  w = which(posterior < cutoff, arr.ind=TRUE) 
 
   if(length(w)==0) { return(NULL) }
 
@@ -402,10 +333,10 @@ bbb_to_df <- function(BF, counts, prior=0.5, coordinates, sample, cutoff = 0.05,
 
 
   #Make depth array x from counts
-  ncol = dim(counts)[3]/2 ##=7
-  x.fw = counts[, , 1:ncol, drop = FALSE] #dim(x.fw)=47*18094*7
+  ncol = dim(counts)[3]/2 
+  x.fw = counts[, , 1:ncol, drop = FALSE] 
   x.bw = counts[, , 1:ncol + ncol, drop = FALSE]
-  x <- x.fw + x.bw #dim(x) #counts , + and - strands summed dim(x) 47*18094*7
+  x <- x.fw + x.bw #dim(x) #counts , + and - strands summed dim(x) 
 
   res$depth <-
     apply(X = w, 1, function(z){
@@ -415,7 +346,7 @@ bbb_to_df <- function(BF, counts, prior=0.5, coordinates, sample, cutoff = 0.05,
   #Make a maf array mu
   #n.fw = rep(rowSums(x.fw, dims = 2), dim(x.fw)[3])
   #n.bw = rep(rowSums(x.bw, dims = 2), dim(x.bw)[3])
-  #n = array(n.fw + n.bw, dim = dim(x)[1:2]) #Depth on all sites on all pts; dim(n) pts x pos 47*18094
+  #n = array(n.fw + n.bw, dim = dim(x)[1:2]) #Depth on all sites on all pts; dim(n) pts x pos 
   n.fw = rowSums(x.fw, dims = 2)
   n.bw = rowSums(x.bw, dims = 2)
   n = n.fw + n.bw
@@ -469,47 +400,24 @@ regions <-makeGRangesFromDataFrame(targets, seqnames.field = names(targets)[1],
                                     start.field = names(targets)[2],
                                     end.field = names(targets)[3], 
                                     keep.extra.column=TRUE)
-count_sample <-piles_to_counts(pileup, targets) ##1*18094*14
-#pon <-readRDS('210617_v0.1.2-hg38-novaseq-pon.RDS')
-
-
-##count_pon <-abind(pon$pon[,,1:5], pon$pon[,,8:12],along=3) ##46*18094*14
-##coordinates <-pon$coordinates
-counts <-abind(count_sample, pon, along=1) ##47*18094*14, A    T    C    G    D    I    N    a    t    c    g    d    i    n
+count_sample <-piles_to_counts(pileup, targets) 
+counts <-abind(count_sample, pon, along=1) ## A    T    C    G    D    I    N    a    t    c    g    d    i    n
 rho0 <-estimateRho_(pon)
-#BF_or <-new_bbb(counts=counts, model="OR", rho=rho0) ##bbb function: if rho is null, would estimate rho by itself; 47*18094*7, A T C G D I N
-BF <-new_bbb(counts=counts, model=model, rho=rho0) ##bbb: set the highest BF among 7 nucleotides in each position for each sample to NA--47*18094NA ??????
-#or_df <-bbb_to_df(BF=BF_or, counts=counts, coordinates=coordinates, rho=rho0, sample_names='B00001', cutoff=0.05, prior=0.5) ##posterior < cutoff to call variants
-###df_file <-bbb_to_df(BF=BF, counts=counts, coordinates=coordinates, rho=rho0, sample=sample, cutoff=0.05, prior=0.5)
-#write.table(or_df, "or.df", row.names=FALSE, sep=" ")
-###write.table(df_file, df, row.names=FALSE, sep=" ")
+BF <-new_bbb(counts=counts, model=model, rho=rho0) ##bbb: set the highest BF among 7 nucleotides in each position for each sample to NA
+##shearwater output with cutoff=1 to include all possible mutations
+vcf_res <-bf2Vcf(BF=BF, counts=counts, regions=regions, cutoff=Inf, samples=dimnames(counts)[[1]])
+writeVcf(vcf_res, vcf_all)
 
-#vcf_res1 <-bf2Vcf(BF=BF, counts=counts, regions=regions, cutoff=0.05, samples=dimnames(counts)[[1]])
-vcf_res2 <-bf2Vcf(BF=BF, counts=counts, regions=regions, cutoff=Inf, samples=dimnames(counts)[[1]])
-#writeVcf(vcf_res1, vcf)
-writeVcf(vcf_res2, vcf_all)
-
-##modified shearwater output
-######cutoff=0.05
-#vcf_df <-read.table(vcf)
-#var <-paste0("*", sample, "*")
+##modified shearwater output with filtering and set cutoff=1 to include all possible SNVs(not on chrY)
 bed <-targets %>% 
   rowwise() %>%
   mutate(POS = list(start:stop)) %>%
   unnest(cols = c("POS")) %>% 
   mutate(pos=paste0(chr,':',POS))
 
-#filtered_vcf_df <-vcf_df[ grepl(var, vcf_df$V3),1:10] %>% filter(V4 !=V5) %>% filter(nchar(V4)==1) %>% mutate(site_mut=paste0(V1,":", V2, "_",V4, "/", V5 )) %>% filter(paste0(V1,":", V2) %in% bed$pos)
-#write.table(filtered_vcf_df, tempvcf, row.names=FALSE, sep=" ", quote = FALSE)
-#call_vcf_df <-merge(filtered_vcf_df, mut_list, by.x = "site_mut", by.y = "sitemut")
-#colnames(call_vcf_df) <-c('site_mut','chr', 'pos', 'sample', 'ref', 'mut', 'qual', 'filter', 'info', 'format1', 'format2', 'pt_id', 'maf', 'vaf')
-#call_vcf_df <-call_vcf_df[!duplicated(call_vcf_df$site_mut),] #%>% mutate(vf = str_split_fixed(format2, ":", 8) [,4])
-#write.table(call_vcf_df, fvcf, row.names=FALSE, sep=" ", quote = FALSE)
-
-######cutoff=1
 ref_pileup <-read.table(pileup, sep="\t", header=TRUE) %>% mutate(place=paste0(chrom, ':', pos))
 vcf_all_df <-read.table(vcf_all) %>% mutate(place=paste0(V1,':',V2)) %>% filter(nchar(V4)==1)
 vcf_all_df_new <-merge(vcf_all_df, ref_pileup, by.x=c('place'), by.y=c('place')) %>% dplyr::select(V1, V2, V3, V4=ref, V5, V6, V7, V8, V9, V10)
-filtered_vcf_all <-vcf_all_df_new %>% filter(V4!=V5, V1!='chrY') %>% mutate(site_mut=paste0(V1,":", V2, "_",V4, "/", V5 )) %>% filter(paste0(V1,":", V2) %in% bed$pos)#%>% mutate(vf = str_split_fixed(V10, ":", 8) [,4])
+filtered_vcf_all <-vcf_all_df_new %>% filter(V4!=V5, V1!='chrY') %>% mutate(site_mut=paste0(V1,":", V2, "_",V4, "/", V5 )) %>% filter(paste0(V1,":", V2) %in% bed$pos)
 write.table(filtered_vcf_all, tempvcf_all, row.names=FALSE, sep=" ", quote = FALSE)
 

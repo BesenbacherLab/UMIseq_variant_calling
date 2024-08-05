@@ -503,30 +503,27 @@ def varscan2(output_basename, mpileup, germline_mpileup, options=None):
     return AnonymousTarget(inputs = inputs, outputs = outputs, spec = spec, options = options)
 
 
-def dreams_variantcalls(mutations_df, bam, ref, model, all_pon_info, calls, log_file, options=None):
+def dreams_variantcalls(mutations_df, bam, ref, model, all_pon_info, calls, options=None):
     '''
     Run DREAMS-vc for variant calling 
     '''
     inputs = [bam]
     outputs = [calls]
     if not options:
-        options = dict(cores='16', memory='60g', walltime='4:00:00', account = 'ctdna_var_calling')
+        options = dict(cores='1', memory='500g', walltime='24:00:00', account = 'ctdna_var_calling')
     spec = f"""
     set -e
     TEMP_DIR=temp/scratch/${{SLURM_JOBID}}
     mkdir -p ${{TEMP_DIR}}
 
-    source ~/miniconda3/bin/activate dreams
+    source ~/miniconda3/bin/activate dreams_M
     Rscript dreams3.R \
-        --mutations={mutations_df} \
-        --model={model} \
-        --allponinfo={all_pon_info} \
-        --ref={ref} \
-        --calls=${{TEMP_DIR}}/calls.df \
-        --batchsize=2 \
-        --ncores=15 \
-        --logfile={log_file}\
-        {bam}
+        {ref}\
+        {mutations_df} \
+        {bam} \
+        {model} \
+        {all_pon_info} \
+        ${{TEMP_DIR}}/calls.df
 
     mv ${{TEMP_DIR}}/calls.df {calls}
     """

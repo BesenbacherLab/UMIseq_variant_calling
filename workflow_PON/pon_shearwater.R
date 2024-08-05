@@ -73,9 +73,9 @@ piles_to_counts <- function(file, regions, extended = F) {
   dimnames(res3d) <- list(file, NULL, c('A','T','C','G','-','a','t','c','g','_') )
   return(res3d)
 }
-pon_dir <-'/home/yixinlin/ctdna_var_calling/Workspaces/yixinlin/bbq_pon50'
+pon_dir <-'pon_bams' #change to your directory for PON
 pon_files <-list.files(pon_dir, pattern = "_pileup$", recursive = TRUE, full.names=T)
-targets <-read.table('/home/yixinlin/ctdna_var_calling/Workspaces/yixinlin/NEW_METHOD_hg38_08feb2016_capture_targets.bed')
+targets <-read.table('NEW_METHOD_hg38_08feb2016_capture_targets.bed') #change to your directory for BED file
 pon_lists <-lapply(pon_files, piles_to_counts, regions=targets)
 count_pon <-abind(pon_lists, along=1)
-saveRDS(count_pon, file = "/home/yixinlin/ctdna_var_calling/Workspaces/yixinlin/bbq_pon50/pon_sw.RDS")
+saveRDS(count_pon, file = "pon_sw.RDS") #change to your directory for saving results
