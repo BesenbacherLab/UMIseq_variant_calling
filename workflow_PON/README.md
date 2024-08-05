@@ -20,7 +20,7 @@ The last step included in the gwf workflow is the pon data information required 
 
 ***STEP3:*** 
 
-For DREAMS-vc, an additiona step of model training should be performed on the PON data, and is conducted by dreams2.R under workflow_PON. After changing the directories inside dreams2.R to your own locations, you could run it by `Rscript dreams2.R`.
+For DREAMS-vc, an additional step of model training should be performed on the PON data, and is conducted by dreams2.R under workflow_PON. After changing the directories inside dreams2.R to your own locations, you could run it by `Rscript dreams2.R`.
 
 ***STEP4:*** 
 
