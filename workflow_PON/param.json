@@ -20,7 +20,9 @@
       "equalize_tags": "equalize_tags.py",
       "run_shearwater": "pon_shearwater.R",
       "dreams_getpondata": "dreams.R",
-      "dreams_trainmodel": "dreams2.R"
+      "dreams_trainmodel": "dreams2.R",
+      "pon_mutect": "create_pon_vcf.sh"
+
     },
     "references":
     {
