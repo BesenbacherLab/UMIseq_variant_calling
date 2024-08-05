@@ -29,7 +29,7 @@ For running GWF workflow, please locate at the working directory which includes 
 
 ## Conda environments
 
-As shown by the json file under <workflow> and <workflow_PON>, we utilized three different conda environments to run the workflow. 
+As shown by the json file under workflow and workflow_PON, we utilized three different conda environments to run the workflow. 
 
 1. For conda environment named 'umiseq', please check `environment_umiseq.yml` for all dependencies and related packages. 
 
