@@ -286,8 +286,9 @@ def overlap_clip(ref, realigned_consensus_bam, clipped_consensus_bam, clipped_co
     set -e
     TEMP_DIR=temp/scratch/${{SLURM_JOBID}}
     mkdir -p ${{TEMP_DIR}}
+    samtools sort -n -@ {options['cores']} -T ${{TEMP_DIR}} {realigned_consensus_bam} > ${{TEMP_DIR}}/nsorted.bam
     fgbio -Xmx{options['memory']} --tmp-dir=${{TEMP_DIR}} ClipBam \
-        -i {realigned_consensus_bam} \
+        -i ${{TEMP_DIR}}/nsorted.bam \
         -o ${{TEMP_DIR}}/clipped_consensus.bam \
         -c SoftWithMask \
         -r {ref} \
