@@ -1,8 +1,7 @@
 import os
 
-#inputs = "/home/yixinlin/ctdna_var_calling/PrimaryData"
-#outputs = "/home/yixinlin/ctdna_var_calling/Workspaces/yixinlin/fq_data2"
-#Change to your directory
+inputs = "inputs" #Change to your directory
+outputs = "outputs" #Change to your directory
 
 samples = os.listdir(inputs)
 for sample in samples:

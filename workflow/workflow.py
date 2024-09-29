@@ -23,11 +23,11 @@ from gwf import Workflow, AnonymousTarget
 with open('param.json') as f:
     param = json.load(f)
 
-fq_dir = param['meta']['ctdna_directory']
-germ_dir = param['meta']['germline_directory']
-sample_file = param['meta']['sample_list']
+fq_dir = param['meta']['ctdna_directory'] #change to your own directory
+germ_dir = param['meta']['germline_directory'] #change to your own directory
+sample_file = param['meta']['sample_list'] #change to your own sample list
 ref = param['references']['reference']
-panel_bed = param['references']['panel_bed']
+panel_bed = param['references']['panel_bed'] #change to your own bed file
 pon_sw = param['references']['pon_sw']
 pon_mutect = param['references']['pon_mutect']
 pon_info_dreams = param["references"]["pon_info_dreams"]

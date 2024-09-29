@@ -1,7 +1,10 @@
+#!/usr/bin/env Rscript
+reticulate::use_condaenv("dreams_M", required = TRUE)
 library(dreams)
-#data_files = list.files("pon_bams_read3", pattern = "_soft.data.csv", recursive=T, full.names = T)
-#info_files = list.files("pon_bams_read3", pattern = "_soft.info.csv", recursive=T, full.names = T)
-#change to your directory with all results generated from running dreams.R on PON
+library(keras)
+args = commandArgs(trailingOnly=TRUE)
+data_files = args[1]
+info_files = args[2]
 
 read_data = function(data){
   data <-read.table(data, header=TRUE)
@@ -21,19 +24,16 @@ combine_training_data = function(data_files, info_files) {
 }
 
 output_data = combine_training_data(data_files, info_files)
-#write.table(output_data$data, "all_pon_soft.data.csv", row.names=FALSE, sep=" ", quote = FALSE)
-#write.table(output_data$info, "all_pon_soft.info.csv", row.names=FALSE, sep=" ", quote = FALSE)
-#change to your directory to save the results
 
 
 model = train_dreams_model(
-    read.table("all_pon_soft.data.csv", header=T),
+    output_data$data,
     layers=c(16,8),
     model_features=c('ref', 'strand', 'first_in_pair', 'read_index', 'trinucleotide_ctx', 'fragment_size', 'umi_count', 'n_other_errors', 'local_GC', 'umi_errors', 'n_deletions_in_read'),
     lr=0.01,
     batch_size=64000, 
     epochs=100, 
-    model_file_path='all_pon_training_soft.vd.hdf5', #change to your directory
-    log_file_path='all_pon_training_soft.vd.log', #change to your directory
+    model_file_path=args[3], 
+    log_file_path=args[4],
     validation_split = 0.2
 )

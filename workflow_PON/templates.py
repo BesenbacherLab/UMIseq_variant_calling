@@ -107,7 +107,7 @@ def tag_equalize(umicorrected_bam, uminsorted_bam, umitagged_bam, options=None):
     inputs = [umicorrected_bam]
     outputs = [umitagged_bam, uminsorted_bam]
     if not options:
-        options = dict(cores='16', memory='16g', walltime='4:00:00', account = 'ctDNA_var_calling')
+        options = dict(cores='4', memory='16g', walltime='4:00:00', account = 'ctDNA_var_calling')
     spec=f"""
     set -e
     TEMP_DIR=temp/scratch/${{SLURM_JOBID}} 
@@ -206,7 +206,7 @@ def pe_ubam_mapper(input_ubam_file, output_bam_file, reference_path, read_group,
 
     if not options:
         options = dict(cores='16', memory='16g',
-                       walltime='6:00:00', account='ctdna_var_calling')
+                       walltime='12:00:00', account='ctdna_var_calling')
 
     inputs = [input_ubam_file]
 
@@ -306,7 +306,7 @@ def target_subset(clipped_consensus_bam, panel_bed, target_consensus_bam, option
     inputs = [clipped_consensus_bam]
     outputs = [target_consensus_bam]
     if not options:
-        options = dict(cores='8', memory='16g', walltime='12:00:00', account = 'ctdna_var_calling')
+        options = dict(cores='1', memory='16g', walltime='12:00:00', account = 'ctdna_var_calling')
     
     spec=f"""
     set -e
@@ -366,7 +366,7 @@ def pon_mutect2(ref, pon_bam, pon_vcf, options=None):
     inputs = [pon_bam]
     outputs = [pon_vcf]
     if not options:
-        options = dict(cores='16', memory='32g', walltime='4:00:00', account = 'ctdna_var_calling')
+        options = dict(cores='1', memory='32g', walltime='4:00:00', account = 'ctdna_var_calling')
     spec = f"""
     set -e
     TEMP_DIR=temp/scratch/${{SLURM_JOBID}}
@@ -387,7 +387,7 @@ def vcf_index(pon_vcf, pon_vcf_idx, options=None):
     inputs = [pon_vcf]
     outputs = [pon_vcf_idx]
     if not options:
-        options = dict(cores='16', memory='32g', walltime='4:00:00', account = 'ctdna_var_calling')
+        options = dict(cores='1', memory='32g', walltime='4:00:00', account = 'ctdna_var_calling')
     spec = f"""
     set -e
     TEMP_DIR=temp/scratch/${{SLURM_JOBID}}
@@ -402,6 +402,29 @@ def vcf_index(pon_vcf, pon_vcf_idx, options=None):
     """
     return AnonymousTarget(inputs = inputs, outputs = outputs, spec = spec, options = options)
 
+def create_pon_combined_vcf(pon_vcf, string, ref, pon_db, panel_bed, pon_vcf_gz):
+    inputs = pon_vcf
+    outputs = [pon_vcf_gz]
+    if not options:
+        options = dict(cores='1', memory='25g', walltime='4:00:00', account = 'ctdna_var_calling')
+    
+    spec = f"""
+    set -e
+    TEMP_DIR=temp/scratch/${{SLURM_JOBID}}
+    mkdir -p ${{TEMP_DIR}}
+
+    gatk GenomicsDBImport -R {ref} \
+      --genomicsdb-workspace-path {pon_db} \
+      -L {panel_bed} \
+      {string}
+
+    gatk CreateSomaticPanelOfNormals -R {ref} \
+       -V gendb://{pon_db} \
+       -O ${{TEMP_DIR}}/pon.vcf.gz
+
+    mv ${{TEMP_DIR}}/pon.vcf.gz {pon_vcf_gz}
+    """
+    return AnonymousTarget(inputs = inputs, outputs = outputs, spec = spec, options = options)
 
 def dreams_readdata(pon_bam, ref, pon_data, pon_info, options=None):
     inputs = [pon_bam]
@@ -415,12 +438,77 @@ def dreams_readdata(pon_bam, ref, pon_data, pon_info, options=None):
 
     source ~/miniconda3/bin/activate dreams_M
     Rscript dreams.R \
-        --pondata=${{TEMP_DIR}}/pon_data.csv \
-        --poninfo=${{TEMP_DIR}}/pon_info.csv \
-        --ref={ref} \
+        ${{TEMP_DIR}}/pon_data.csv \
+        ${{TEMP_DIR}}/pon_info.csv \
+        {ref} \
         {pon_bam}
 
     mv ${{TEMP_DIR}}/pon_data.csv {pon_data}
     mv ${{TEMP_DIR}}/pon_info.csv {pon_info}
+    """
+    return AnonymousTarget(inputs = inputs, outputs = outputs, spec = spec, options = options)
+
+def dreams_trainmodel(all_pon_data, all_pon_info, pon_model, pon_log, options=None):
+    inputs = all_pon_data + all_pon_info
+    outputs = [pon_model, pon_log]
+    if not options:
+        options = dict(cores='1', memory='25g', walltime='4:00:00', account = 'ctdna_var_calling')
+    spec = f"""
+    set -e
+    TEMP_DIR=temp/scratch/${{SLURM_JOBID}}
+    mkdir -p ${{TEMP_DIR}}
+
+    source ~/miniconda3/bin/activate dreams_M
+    Rscript dreams2.R \
+        {all_pon_data} \
+        {all_pon_info} \
+        ${{TEMP_DIR}}/pon_model.hdf5 \
+        ${{TEMP_DIR}}/pon_model.log
+
+    mv ${{TEMP_DIR}}/pon_model.hdf5 {pon_model}
+    mv ${{TEMP_DIR}}/pon_model.log {pon_log}
+    """
+    return AnonymousTarget(inputs = inputs, outputs = outputs, spec = spec, options = options)
+
+def pon_shearwater(all_pon_pileup, pon_counts, options=None):
+    inputs = all_pon_pileup
+    outputs = [pon_counts]
+    if not options:
+        options = dict(cores='1', memory='25g', walltime='4:00:00', account = 'ctdna_var_calling')
+    spec = f"""
+    set -e
+    TEMP_DIR=temp/scratch/${{SLURM_JOBID}}
+    mkdir -p ${{TEMP_DIR}}
+
+    source ~/miniconda3/bin/activate shearwater
+    Rscript pon_shearwater.R \
+        {all_pon_pileup} \
+        ${{TEMP_DIR}}/pon_sw.RDS
+
+    mv ${{TEMP_DIR}}/pon_sw.RDS {pon_counts}
+    """
+    return AnonymousTarget(inputs = inputs, outputs = outputs, spec = spec, options = options)
+
+def bed_to_vcf(panel_bed, mutect_allpos_vcf, mutect_allpos_vcf_idx, dreams_allpos_vcf, options=None):
+    inputs = [panel_bed]
+    outputs = [mutect_allpos_vcf, mutect_allpos_vcf_idx, dreams_allpos_vcf]
+    if not options:
+        options = dict(cores='1', memory='12g', walltime='4:00:00', account = 'ctdna_var_calling')
+    spec = f"""
+    set -e
+    TEMP_DIR=temp/scratch/${{SLURM_JOBID}}
+    mkdir -p ${{TEMP_DIR}}
+
+    source ~/miniconda3/bin/activate shearwater
+    Rscript bed_to_vcf.R \
+        {panel_bed} \
+        ${{TEMP_DIR}}/mutect_allpos.vcf \
+        ${{TEMP_DIR}}/dreams_allpos.vcf
+
+    mv ${{TEMP_DIR}}/mutect_allpos.vcf {mutect_allpos_vcf}
+    mv ${{TEMP_DIR}}/dreams_allpos.vcf {dreams_allpos_vcf}
+    
+    gatk IndexFeatureFile \
+        -I {mutect_allpos_vcf}
     """
     return AnonymousTarget(inputs = inputs, outputs = outputs, spec = spec, options = options)

@@ -12,15 +12,22 @@ from templates import overlap_clip
 from templates import target_subset
 from templates import fix_mate
 from templates import pileup
+from templates import pon_mutect2
+from templates import vcf_index
+from templates import create_pon_combined_vcf
 from templates import dreams_readdata
+from templates import dreams_trainmodel
+from templates import bed_to_vcf
+from templates import pon_shearwater
 from gwf import Workflow, AnonymousTarget
 
 with open('param.json') as f:
     param = json.load(f)
 
 fq_dir = param['meta']['pon_directory'] #working directory
+pon_db = param['meta']['pon_db'] 
 ref = param['references']['reference']
-panel_bed = param['references']['panel_bed']
+panel_bed = param['references']['panel_bed'] #change to your own bed file
 grouping_method = param['parameters']['grouping_method']
 min_consensus_reads = param['parameters']['min_consensus_reads'] 
 
@@ -31,8 +38,15 @@ for dir in dirs:
     if dir.startswith('Donor'):
         pons.append(dir)
 
+all_pon_pileup = []
+all_pon_data = []
+all_pon_info = []
+all_pon_vcf = []
+string = ''
+
 gwf = Workflow()
 for sample in pons:
+    #####################################STEP1: UMI processing
     ### Merge the fastq files(R1, R2, UMI) from different lanes for the same PON sample
     gwf.target_from_template(name = f"fqmerge_{sample}", template = fq_merge(fq_dir=fq_dir, sample=sample))
     
@@ -121,7 +135,11 @@ for sample in pons:
             pileup_file = os.path.join(fq_dir, sample, f"{sample}_pileup"),
             ref = ref,
             min_baseq = 1))
-    
+    all_pon_pileup.append(os.path.join(fq_dir, sample, f"{sample}_pileup"))
+
+
+
+########################################STEP2: Prepare for variant calling
     ### For DREAMS-vc, get pon data info
     gwf.target_from_template(name = f"read_pon_{sample}",
         template = dreams_readdata(
@@ -129,4 +147,53 @@ for sample in pons:
             ref = ref, 
             pon_data = os.path.join(fq_dir, sample,f"{sample}_soft.data.csv"), 
             pon_info = os.path.join(fq_dir, sample,f"{sample}_soft.info.csv")))
+    all_pon_data.append(os.path.join(fq_dir, sample,f"{sample}_soft.data.csv"))
+    all_pon_data.append(os.path.join(fq_dir, sample,f"{sample}_soft.info.csv"))
+    
+    ### For Mutect2, create pon vcf and index
+    gwf.target_from_template(name = f"pon_mutect_vcf_{sample}",
+        template = pon_mutect2(
+            pon_bam = os.path.join(fq_dir, sample, f"{sample}_soft.filtered.fixmate.bam"),
+            pon_vcf = os.path.join(fq_dir, sample, f"{sample}.vcf"),  
+            ref = ref))
+    
+    gwf.target_from_template(name = f"pon_vcf_index_{sample}",
+        template = vcf_index(
+            pon_vcf = os.path.join(fq_dir, sample, f"{sample}.vcf"), 
+            pon_vcf_idx = os.path.join(fq_dir, sample, f"{sample}.vcf.idx")))
+    string = string + "-V " + f"{fq_dir}/{sample}/{sample}.vcf "
+    all_pon_vcf.append(os.path.join(fq_dir, sample, f"{sample}.vcf"))
 
+
+###For mutect2, create combined pon.vcf.gz for mutect2 variant calling
+gwf.target_from_template(name = "create_pon_combined_vcf",
+    template = create_pon_combined_vcf(
+        panel_bed = panel_bed, 
+        ref = ref,
+        pon_db = pon_db,
+        all_pon_vcf = all_pon_vcf,
+        string = string,
+        pon_combined_vcf = os.path.join(fq_dir, "pon.vcf.gz")))
+
+### For DREAMS-vc, train pon data
+gwf.target_from_template(name = "train_pon",
+    template = dreams_trainmodel(
+        all_pon_data = all_pon_data, 
+        all_pon_info = all_pon_info,
+        model_file = os.path.join(fq_dir, 'all_pon_training_soft.vd.hdf5'),
+        log_file = os.path.join(fq_dir, 'all_pon_training_soft.vd.log')))
+
+### For mutect2 and dreams, convert bed into vcf for variant calling on all alts on all positions
+gwf.target_from_template(name = "bed_to_vcf",
+    template = bed_to_vcf( 
+        panel_bed = panel_bed,
+        mutect_allpos_vcf = os.path.join(fq_dir, 'mutect_allpos.vcf'),
+        mutect_allpos_vcf_idx = os.path.join(fq_dir, 'mutect_allpos.vcf.idx'),
+        dreams_allpos_vcf = os.path.join(fq_dir, 'dreams_allpon.vcf')))
+
+### For shearwater, save all pon pileup counts into pon_sw.RDS for shearwater variant calling
+gwf.target_from_template(name = "pon_sw",
+    template = pon_shearwater(
+        all_pon_pileup = all_pon_pileup, 
+        panel_bed = panel_bed,
+        pon_counts = os.path.join(fq_dir, 'pon_sw.RDS')))

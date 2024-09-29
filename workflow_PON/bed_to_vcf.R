@@ -3,13 +3,13 @@
 library('tidyverse')
 # Read panel from bed file
 args = commandArgs(trailingOnly=TRUE)
-panel_df = read.table(arg[1], sep = "\t", col.names = c("CHROM", "start", "stop", "region")) %>% 
+panel_bed = read.table(arg[1], sep = "\t", col.names = c("CHROM", "start", "stop", "region")) %>% 
   select(-region) %>% 
   mutate(start = start, stop = stop)
  
 # Extend to get df per position
 mutations  <-
-  panel_df %>%
+  panel_bed %>%
   rowwise() %>%
   mutate(POS = list(start:stop)) %>%
   unnest(cols = c("POS")) %>%
@@ -43,4 +43,7 @@ vcf_alt <-vcf_ref %>%
   filter(REF!=ALT)
 
 # Write to vcf file
+#for mutect2
 write.table(vcf_alt, arg[2], append = T, sep = "\t", quote=FALSE, col.names=FALSE, row.names=FALSE)
+#for dreams-vc
+write.table(vcf_alt, arg[3], sep = "\t", quote=FALSE, col.names=TRUE, row.names=FALSE)

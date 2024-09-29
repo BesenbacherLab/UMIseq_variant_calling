@@ -1,17 +1,15 @@
+#!/usr/bin/env Rscript
+args = commandArgs(trailingOnly=TRUE)
 library("deepSNV")
 library("abind")
 library("tidyverse")
+
 piles_to_counts <- function(file, regions, extended = F) {
-  # v0.2.1 Use D and d for deletions (not - and _). Added extended (FALSE) which,
-  # if TRUE, insertions (I, i) and N (N, n) are also returned.
-  # 
-  # v0.2.0 Removed dependency on package abind
   #INPUT:
   #files is a list of pileup files generated and named as by pysamstat.
   #regions is a data.frame with three first columns giving chrom, start, end
   #OUTPUT:
   # Array with dim pts x positions x bases where bases are A,T,C,G,D,a,t,c,g,d or
-  # (if extended = T) A,T,C,G,D,I,N,a,t,c,g,d,i,n
   #
   # Requires pileup_reader, subset_ranges, dplyr
 
@@ -73,9 +71,9 @@ piles_to_counts <- function(file, regions, extended = F) {
   dimnames(res3d) <- list(file, NULL, c('A','T','C','G','-','a','t','c','g','_') )
   return(res3d)
 }
-pon_dir <-'pon_bams' #change to your directory for PON
-pon_files <-list.files(pon_dir, pattern = "_pileup$", recursive = TRUE, full.names=T)
-targets <-read.table('NEW_METHOD_hg38_08feb2016_capture_targets.bed') #change to your directory for BED file
-pon_lists <-lapply(pon_files, piles_to_counts, regions=targets)
-count_pon <-abind(pon_lists, along=1)
-saveRDS(count_pon, file = "pon_sw.RDS") #change to your directory for saving results
+
+pon_pileups <-args[1]
+panel_bed <-read.table(args[2])
+pon_lists <-lapply(pon_pileups, piles_to_counts, regions=panel_bed)
+pon_counts <-abind(pon_lists, along=1)
+saveRDS(pon_counts, file = args[3])

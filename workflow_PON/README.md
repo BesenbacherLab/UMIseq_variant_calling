@@ -12,7 +12,7 @@ Inside param.json, the working directory, conda environments, gwf workflow, addt
 
 ***STEP1:*** 
 
-Run the gwf workflow with the templates.py and workflow.py under workflow_PON, to complete the exactly same UMI processing procedures with the plasma samples from the patients. Detailed steps include merging FASTQ files, mapping to HG38, sorting and indexing the BAM file, UMI grouping by umitools, tagging, UMI grouping by fgbio based on the new tags, UMI consensus by fgbio, realignment to HG38, Softclipping the overlapping region, subsetting the target panel, read mate fixation, and generating PILEUP file for each sample.
+Run the gwf workflow with the templates.py and workflow.py under workflow_PON, to complete the exactly same UMI processing procedures with the plasma samples from the patients. Detailed steps include merging FASTQ files, mapping to hg38, sorting and indexing the BAM file, UMI grouping by umitools, tagging, UMI grouping by fgbio based on the new tags, UMI consensus by fgbio, realignment to hg38, softclipping the overlapping region, subsetting the target panel, read mate fixation, and generating PILEUP file for each sample.
 
 ***STEP2:*** 
 

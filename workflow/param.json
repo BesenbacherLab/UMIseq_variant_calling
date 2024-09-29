@@ -1,9 +1,9 @@
 {
     "meta":
     {
-      "ctdna_directory": "/home/yixinlin/ctdna_var_calling/Workspaces/yixinlin/fq_data2",
-      "germline_directory": "/home/yixinlin/ctdna_var_calling/Workspaces/yixinlin/germline_data", 
-      "sample_list": "/home/yixinlin/ctdna_var_calling/Workspaces/yixinlin/all_germline_files.lst"
+      "ctdna_directory": "fq_data",
+      "germline_directory": "germline_data", 
+      "sample_list": "all_germline_files.lst"
     },
     "conda":
     {
@@ -21,17 +21,16 @@
       "prepare_fq_list": "prepare_fq_list.py",
       "equalize_tags": "equalize_tags.py",
       "run_shearwater": "shearwater.R",
-      "mutect2_allbedpos": "bed_vcf_mutect2.R",
       "dreams_callvariants": "dreams3.R"
     },
     "references":
     {
       "reference": "GCA_000001405.15_GRCh38_no_alt_analysis_set.fna",
-      "panel_bed": "NEW_METHOD_hg38_08feb2016_capture_targets.bed",
+      "panel_bed": "panel.bed", 
       "pon_sw": "pon_sw.RDS",
       "pon_mutect": "pon.vcf.gz",
-      "positions_mutect": "mutect2_allbedpos.vcf",
-      "positions_dreams #modified from positions_mutect by keeping the header": "dreams_mutations.df", 
+      "positions_mutect": "mutect_allbedpos.vcf",
+      "positions_dreams" : "dreams_allbedpos.vcf", 
       "pon_info_dreams": "all_pon_soft.info.csv",
       "model_dreams" : "all_pon_training_soft.vd.hdf5"
     },
