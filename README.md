@@ -19,10 +19,12 @@ We used it for benchmarking different variant callers and UMI processing strateg
 
 Directory ***workflow*** includes all steps for processing cancer patient plasma sample, from UMI processing to variant calling. Please check the README under it for more information. 
 
-For running GWF workflow, please locate at the working directory which includes both the `templates.py` and `workflow.py`. Specifically, the steps under ***workflow***, can be performed by  
-```cd workflow```
+For running GWF workflow, please locate at the working directory which includes both the `templates.py` and `workflow.py`. Specifically, the steps under ***workflow***, can be performed by
 
-```gwf -b slurm run``` 
+```
+cd workflow
+gwf -b slurm run
+``` 
 
 Remember to change the **account, running time, core and memory** for the functions inside templates.py for your own use.
 
@@ -33,8 +35,11 @@ Directory ***workflow_PON*** includes all steps for processing PON which is requ
 For running GWF workflow, please locate at the working directory which includes both the `templates.py` and `workflow.py`. 
 
 Specifically, the steps under ***workflow_PON***, can be performed by  
-```cd workflow_pon```
-```gwf -b slurm run``` 
+
+```
+cd workflow_pon
+gwf -b slurm run
+``` 
 
 Remember to change the **account, running time, core and memory** for the functions inside templates.py for your own use.
 
@@ -42,34 +47,44 @@ Remember to change the **account, running time, core and memory** for the functi
 
 As shown by the json file under workflow and workflow_PON, we utilized three different conda environments to run the workflow. 
 
-1. For conda environment named 'umiseq', please run ```conda create -n umiseq -c bioconda -c gwforg python=3.7 gwf samtools bwa picard umi_tools fgbio gatk4 pysamstats seqtk``
+1. For conda environment named 'umiseq', please run 
+
+```
+conda create -n umiseq -c bioconda -c gwforg python=3.7 gwf samtools bwa picard umi_tools fgbio gatk4 pysamstats seqtk
+```
 
 please check `environment_umiseq.yml` for all dependencies and related packages. 
 
-2. For conda environment named 'shearwater', please run ```conda create -n shearwater```
+2. For conda environment named 'shearwater', please run
 
-```conda activate shearwater```
-
-```conda install conda-forge::r-tidyverse```
+```
+conda create -n shearwater
+conda activate shearwater
+conda install conda-forge::r-tidyverse
+```
 
 To install package 'deepSNV', start R (version "4.4") and enter:
-```if (!require("BiocManager", quietly = TRUE))```
-    ```install.packages("BiocManager")```
+```
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
 
-```BiocManager::install("deepSNV")```
+BiocManager::install("deepSNV")```
 
 please check `environment_sw.yml` for all dependencies and related packages.
 
-3. For conda environment named 'dreams_M', please run 
-```conda create -n dreams_M```
+3. For conda environment named 'dreams_M', please run
 
-```conda activate dreams_M```
+```
+conda create -n dreams_M
+conda activate dreams_M
+```
 
 Under R, install DREAMS package by
 
-```install.packages("devtools")```
-
-```devtools::install_github("JakobSkouPedersenLab/dreams")```
+```
+install.packages("devtools")
+devtools::install_github("JakobSkouPedersenLab/dreams")
+```
 
 please check `environment_dreams.yml` for all dependencies and related packages. 
 
