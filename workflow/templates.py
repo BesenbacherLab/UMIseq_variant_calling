@@ -1,12 +1,11 @@
 import os
 from gwf import AnonymousTarget
-def fq_merge(fq_dir, sample, options=None):
+def fq_merge(fq_list, fq_dir, sample, options=None):
     '''
     Merge the fastq files (R1,R2,UMI) from different lanes for each sample
     '''
-    fq_list = os.path.join(fq_dir, sample, f"{sample}_fq.lst")
     inputs = [fq_list]
-    outputs = [os.path.join(fq_dir, sample, f"{sample}_R1.fastq.gz"),  os.path.join(fq_dir, sample, f"{sample}_R2.fastq.gz"), os.path.join(fq_dir, sample, f"{sample}_R3.fastq.gz")]
+    outputs = [fq1,  fq2, fq3]
 
     if not options:
         options = dict(cores = '1', memory = '8g', walltime = '2:00:00', account = 'ctdna_var_calling')

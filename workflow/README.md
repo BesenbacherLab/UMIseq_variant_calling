@@ -12,7 +12,7 @@ Inside param.json, the working directory, conda environments, gwf workflow, addt
 
 ***STEP1: UMI processing*** 
 
-Run the gwf workflow with the templates.py and workflow.py under workflow to process each patient plasma sample file. Detailed steps include merging FASTQ files, mapping to HG38, sorting and indexing the BAM file, UMI grouping by umitools, tagging, UMI grouping by fgbio based on the new tags, UMI consensus by fgbio, realignment to HG38, Softclipping the overlapping region, subsetting the target panel, read mate fixation, and generating PILEUP file for each sample.
+Run the gwf workflow with the templates.py and workflow.py under workflow to process each patient plasma sample file. Detailed steps include merging FASTQ files, mapping to hg38, sorting and indexing the BAM file, UMI grouping by umitools, tagging, UMI grouping by fgbio based on the new tags, UMI consensus by fgbio, realignment to hg38, softclipping the overlapping region, subsetting the target panel, read mate fixation, and generating PILEUP file for each sample.
 
 In addition to the UMI processing steps above, variant calling steps are also included in the code. For filtering non-cancer mutations and SNPs, PILEUP and MPILEUP are also generated for buffycoat(or saying PBMC) sample.
 

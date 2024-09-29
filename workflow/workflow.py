@@ -46,7 +46,13 @@ for line in open(sample_file,'r'):
     normal = sample_normal_tumor[1]
     tumor = sample_normal_tumor[2]
     ### Merge the fastq files(R1, R2, UMI) from different lanes for the same sample
-    gwf.target_from_template(name = f"fqmerge_{sample}", template = fq_merge(fq_dir=fq_dir, sample=sample))
+    gwf.target_from_template(name = f"fqmerge_{sample}", 
+        template = fq_merge(fq_dir = fq_dir, 
+            sample = sample,
+            fq_list = os.path.join(fq_dir, sample, f"{sample}_fq.lst"), #If there is no existing fq_list, you could run python prepare_fq_list.py to create fq_list for all samples
+            fq1 = os.path.join(fq_dir, sample, f"{sample}_R1.fastq.gz"),
+            fq2 = os.path.join(fq_dir, sample, f"{sample}_R2.fastq.gz"),
+            fq3 = os.path.join(fq_dir, sample, f"{sample}_R3.fastq.gz")))
     
     ### Map the fastq files to hg38, get the BAM file
     gwf.target_from_template(name = f"fq_mapping_{sample}", 
@@ -158,8 +164,8 @@ for line in open(sample_file,'r'):
     gwf.target_from_template(name = f"mutect2_filtergerm_{sample}",
         template = mutect2_filtergermline(
             sorted_target_consensus_bam = os.path.join(fq_dir, sample, f"{sample}_soft.filtered.fixmate.bam"),
-            vcf = os.path.join(fq_dir, sample, f"{sample}_filgerm_new.vcf"),
-            vcf_stats = os.path.join(fq_dir, sample, f"{sample}_filgerm_new.vcf.stats"),
+            vcf = os.path.join(fq_dir, sample, f"{sample}_filgerm.vcf"),
+            vcf_stats = os.path.join(fq_dir, sample, f"{sample}_filgerm.vcf.stats"),
             germline_sorted_target_bam = os.path.join(germ_dir, sample, f"{sample}_germline.filtered.fixmate.bam"),
             normal = normal,
             mutation_positions_vcf = positions_mutect,
@@ -169,8 +175,8 @@ for line in open(sample_file,'r'):
     ### Change to an easy-analyzed format for MUTECT2 VCF
     gwf.target_from_template(name = f"mutect2_germsplit_{sample}",
         template = mutect2_split(
-            vcf = os.path.join(fq_dir, sample, f"{sample}_filgerm_new.vcf"),
-            split_vcf = os.path.join(fq_dir, sample, f"{sample}_germ.split.newvcf")))
+            vcf = os.path.join(fq_dir, sample, f"{sample}_filgerm.vcf"),
+            split_vcf = os.path.join(fq_dir, sample, f"{sample}_germ.split.vcf")))
 
     ### Make a plasma PILEUP from BAM using samtools for running VARSCAN2
     gwf.target_from_template(name = f"ctdna_mpileup_{sample}",
