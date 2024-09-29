@@ -19,7 +19,9 @@ We used it for benchmarking different variant callers and UMI processing strateg
 
 Directory ***workflow*** includes all steps for processing cancer patient plasma sample, from UMI processing to variant calling. Please check the README under it for more information. 
 
-For running GWF workflow, please locate at the working directory which includes both the `templates.py` and `workflow.py`. Specifically, the steps under ***workflow***, can be performed by
+For running GWF workflow, please locate at the working directory which includes both the `templates.py` and `workflow.py`. 
+
+Specifically, the steps under ***workflow***, can be performed by
 
 ```
 cd workflow
@@ -64,11 +66,13 @@ conda install conda-forge::r-tidyverse
 ```
 
 To install package 'deepSNV', start R (version "4.4") and enter:
+
 ```
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
-BiocManager::install("deepSNV")```
+BiocManager::install("deepSNV")
+```
 
 please check `environment_sw.yml` for all dependencies and related packages.
 
