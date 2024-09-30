@@ -52,7 +52,7 @@ As shown by the json file under workflow and workflow_PON, we utilized three dif
 1. For conda environment named 'umiseq', please run 
 
 ```
-conda create -n umiseq -c bioconda -c gwforg python=3.7 gwf samtools bwa picard umi_tools fgbio gatk4 pysamstats seqtk
+conda create -n umiseq -c bioconda -c gwforg python=3.7 gwf samtools bwa picard umi_tools fgbio gatk4 varscan pysamstats seqtk
 ```
 
 please check `environment_umiseq.yml` for all dependencies and related packages. 
