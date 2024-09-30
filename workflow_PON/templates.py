@@ -489,8 +489,8 @@ def pon_shearwater(all_pon_pileup, pon_counts, options=None):
     """
     return AnonymousTarget(inputs = inputs, outputs = outputs, spec = spec, options = options)
 
-def bed_to_vcf(panel_bed, mutect_allpos_vcf, mutect_allpos_vcf_idx, dreams_allpos_vcf, options=None):
-    inputs = [panel_bed]
+def bed_to_vcf(panel_bed, pileup, mutect_allpos_vcf, mutect_allpos_vcf_idx, dreams_allpos_vcf, options=None):
+    inputs = [panel_bed, pileup]
     outputs = [mutect_allpos_vcf, mutect_allpos_vcf_idx, dreams_allpos_vcf]
     if not options:
         options = dict(cores='1', memory='12g', walltime='4:00:00', account = 'ctdna_var_calling')
@@ -503,12 +503,14 @@ def bed_to_vcf(panel_bed, mutect_allpos_vcf, mutect_allpos_vcf_idx, dreams_allpo
     Rscript bed_to_vcf.R \
         {panel_bed} \
         ${{TEMP_DIR}}/mutect_allpos.vcf \
+        {pileup} \
         ${{TEMP_DIR}}/dreams_allpos.vcf
 
     mv ${{TEMP_DIR}}/mutect_allpos.vcf {mutect_allpos_vcf}
     mv ${{TEMP_DIR}}/dreams_allpos.vcf {dreams_allpos_vcf}
     
     gatk IndexFeatureFile \
-        -I {mutect_allpos_vcf}
+        -I {mutect_allpos_vcf} \
+        -O {mutect_allpos_vcf_idx}
     """
     return AnonymousTarget(inputs = inputs, outputs = outputs, spec = spec, options = options)

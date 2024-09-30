@@ -187,6 +187,7 @@ gwf.target_from_template(name = "train_pon",
 gwf.target_from_template(name = "bed_to_vcf",
     template = bed_to_vcf( 
         panel_bed = panel_bed,
+        pileup = os.path.join(fq_dir, pons[0], f"{pons[0]}_pileup"), #any existing pileup to input REF
         mutect_allpos_vcf = os.path.join(fq_dir, 'mutect_allpos.vcf'),
         mutect_allpos_vcf_idx = os.path.join(fq_dir, 'mutect_allpos.vcf.idx'),
         dreams_allpos_vcf = os.path.join(fq_dir, 'dreams_allpon.vcf')))

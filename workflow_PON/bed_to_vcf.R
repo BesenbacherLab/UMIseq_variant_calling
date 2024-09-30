@@ -46,4 +46,4 @@ vcf_alt <-vcf_ref %>%
 #for mutect2
 write.table(vcf_alt, arg[2], append = T, sep = "\t", quote=FALSE, col.names=FALSE, row.names=FALSE)
 #for dreams-vc
-write.table(vcf_alt, arg[3], sep = "\t", quote=FALSE, col.names=TRUE, row.names=FALSE)
+write.table(vcf_alt, arg[4], sep = "\t", quote=FALSE, col.names=TRUE, row.names=FALSE)
