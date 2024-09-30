@@ -1,17 +1,17 @@
 # UMIseq_variant_calling
 The codes are used for processing deep-targeted UMI-seq data. 
 
-The workflows are written in gwf (<https://gwf.app>).
+The workflows are written in [gwf](<https://gwf.app>).
 
 It includes the steps of both UMI processing and variant calling options of 
 
-shearwater(both AND & OR algorithm) (<https://github.com/im3sanger/deepSNV>), 
+[shearwater(both AND & OR algorithm)](<https://github.com/im3sanger/deepSNV>), 
 
-Mutect2 (<https://gatk.broadinstitute.org/hc/en-us/articles/360037593851-Mutect2>), 
+[Mutect2](<https://gatk.broadinstitute.org/hc/en-us/articles/360037593851-Mutect2>), 
 
-Varscan2 (<https://varscan.sourceforge.net>), 
+[Varscan2](<https://varscan.sourceforge.net>), 
 
-DREAMS-vc (<https://github.com/JakobSkouPedersenLab/dreams>). 
+[DREAMS-vc](<https://github.com/JakobSkouPedersenLab/dreams>). 
 
 We used it for benchmarking different variant callers and UMI processing strategies for detecting low-frequency mutations from cfDNA colorectal cancer patients. For detailed theories behind each method, and the specific step for modification based on your own use, please also check the related github respectively.
 
